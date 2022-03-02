@@ -53,7 +53,7 @@ public String toString() {
         return color + " Snu";
     }
     else if (value == 12) {
-        return color + "Trekk to";
+        return color + " Trekk to";
     }
     else if (value == 13) {
         return "Bytt farge";
@@ -70,6 +70,9 @@ public String toString() {
 public static void main(String[] args) {
     Card kort = new Card('R', 11);
     System.out.println(kort.toString());
+    Card kort1 = new Card(13);
+    System.out.println(kort1);
+    System.out.println(kort1.getColor());
 }
 
 

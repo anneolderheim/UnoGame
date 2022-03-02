@@ -2,13 +2,14 @@ package prosjekt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Game {
     
 
     private List<Card> onTable = new ArrayList<>();
-    private List<Integer> turn = new ArrayList<Integer>(Arrays.asList(1,2,3,4));
+    private ArrayList<Integer> turn = new ArrayList<Integer>(Arrays.asList(1,2,3,4));
 
 
     public void drawTwo(Player player, CardDeck deck) {
@@ -27,9 +28,12 @@ public class Game {
         onTable.add(card);
     }
 
-    public void 
+    public int nextPlayer(int n) {
+        return turn.get((n+1)%4);
+    }
 
     public void reverse() {
+        Collections.reverse(turn);
 
     }
 
@@ -48,5 +52,9 @@ public class Game {
         else {
             return false;
         }
+    }
+
+    public static void main(String[] args) {
+        
     }
 } 

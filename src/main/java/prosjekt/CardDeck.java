@@ -34,8 +34,20 @@ public class CardDeck {
         return deck.size();
     }
 
+    public Card getCard(int n) {
+        return deck.get(n);
+
+    }
+    public Card removeCard(int n) {
+        if (n >= this.getDeckSize()) {
+            throw new IllegalArgumentException("det finnes ingen kort med denne indeksen");
+        }
+        return deck.remove(n);
+
+    }
+
     public List<Card> getList() {
-        return deck;
+        return deck; //dette er en usikker løsning. Kan endre lista utenifra
     }
 
     public void shuffle() {
@@ -51,12 +63,10 @@ public class CardDeck {
  
     public static void main(String[] args) {
         CardDeck deck = new CardDeck();
-        deck.shuffle();
-        //System.out.println(deck.getList());
-        Player player1 = new Player("Anne");
-        deck.handOut(player1);
-        System.out.println(player1.getHand());
         System.out.println(deck.getDeckSize());
+        System.out.println(deck.getList());
+        System.out.println(deck.getCard(107));
+    
     }
 }
 
