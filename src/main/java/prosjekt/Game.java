@@ -9,14 +9,47 @@ public class Game {
     
 
     private List<Card> onTable = new ArrayList<>();
-    private ArrayList<Integer> turn = new ArrayList<Integer>(Arrays.asList(1,2,3,4));
+    private ArrayList<Player> players = new ArrayList<Player>();
+    private CardDeck cardDeck = new CardDeck();
 
+
+    public void start() {
+        cardDeck.shuffle();
+        handOut();
+        addOnTable();
+
+    }
+
+    public void handOut() {
+        for (Player player: players) {
+            cardDeck.handOut(player);
+        }
+       
+
+    }
+
+    public void addOnTable() {
+        onTable.add(cardDeck.removeLastCard());
+    }
+
+    public Card getTopOnTable() {
+        return onTable.get(onTable.size()-1);
+    }
+
+
+
+    public void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
 
     public void drawTwo(Player player, CardDeck deck) {
-        player.addCard(deck.getCard(deck.getDeckSize()-1));
-        deck.removeCard(deck.getDeckSize()-1);
-        player.addCard(deck.getCard(deck.getDeckSize()-1));
-        deck.removeCard(deck.getDeckSize()-1);
+        player.addCard(deck.removeLastCard());
+        player.addCard(deck.removeLastCard());
+    
     }
 
     public void drawFour(Player player, CardDeck deck) {
@@ -28,13 +61,13 @@ public class Game {
         onTable.add(card);
     }
 
-    public int nextPlayer(int n) {
-        return turn.get((n+1)%4);
+    //tar inn player-index til den som har sin tur
+    public int nextPlayer(int i) {
+       
     }
 
     public void reverse() {
-        Collections.reverse(turn);
-
+        
     }
 
     public boolean validCard(Card card) {
@@ -55,6 +88,8 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        
+        Game game = new Game();
+        game.reverse();
+        System.out.println(game.nextPlayer(1));
     }
 } 

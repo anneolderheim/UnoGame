@@ -10,65 +10,79 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-
 public class UnoController {
 
+    @FXML
+    private TextArea feedback, onTable;
 
-    @FXML private TextArea feedback, player2Cards,player3Cards,player4Cards;
+    @FXML
+    private TextField playerOne, playerTwo, playerThree, playerFour;
 
-    @FXML private TextField playerOne,playerTwo,playerThree,playerFour;
+    @FXML
+    private GridPane player1Cards,player2Cards,player3Cards,player4Cards;
 
-    @FXML private GridPane player1Cards;
+    Game game = new Game();
+    private List<GridPane> grids = new ArrayList<>();
+
 
     @FXML
     public void onStart() {
         feedback.setText("Spillet har startet!");
+        Player player1 = new Player(playerOne.getText());
+        Player player2 = new Player(playerTwo.getText());
+        Player player3 = new Player(playerThree.getText());
+        Player player4 = new Player(playerFour.getText());
+        game.addPlayer(player1);
+        game.addPlayer(player2);
+        game.addPlayer(player3);
+        game.addPlayer(player4);
+        game.start();
+        (onTable).setVisible(true);
+        update();
 
     }
-
-    private List<Player> players = new ArrayList<>();
 
     @FXML
     public void initialize() {
-        Player player1 = new Player(playerOne);
-        Player player2 = new Player(playerTwo);
-        Player player3 = new Player(playerThree);
-        Player player4 = new Player(playerFour);
-        players.add(player1);
-        players.add(player2);
-        players.add(player3);
-        players.add(player4);
-        Game game = new Game();
-        CardDeck cardDeck = new CardDeck();
-        for (Player player: players) {
-            cardDeck.handOut(player);
-            for (int i = 0; i<getHand(player).size();i++) {
-                Card card = getHand(player).get(i);
-                player1Cards.add(createCardButton(card), i%4, i/3);
+        grids.add(player1Cards);
+        grids.add(player2Cards);
+        grids.add(player3Cards);
+        grids.add(player4Cards);
+        (onTable).setVisible(false);
+
+
+
+    }
+
+    @FXML
+    public void update() {
+    
+        
+
+        for (int j = 0; j<game.getPlayers().size(); j++) {
+            Player player = game.getPlayers().get(j);
+            for (int i = 0; i < player.getHand().size(); i++) {
+                Card card = player.getHand().get(i);
+                System.out.println(card);
+                grids.get(j).add(createCardButton(card), i % 4, i / 3);
+
             }
         }
 
-        
-  
-}
+        onTable.appendText(game.getTopOnTable().toString());
 
-private List<Card> getHand(Player player) {
-    return player.getHand();
 
-}
+    }
 
-private Button createCardButton(Card card) {
-    Button button = new Button(card.toString());
-    button.setOnAction((event) -> {
-        playCardSelect(card);
-    });
-    return button;
-}
 
-@FXML
-public void updateHand() {
-    for (Player player: players) {
-        player.getHand();
+    private Button createCardButton(Card card) {
+        Button button = new Button(card.toString());
+        button.setOnAction((event) -> {
+            //playCardSelect(card);
+        });
+        return button;
     }
 
 }
+
+

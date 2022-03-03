@@ -21,5 +21,4 @@ public class UnoApp extends Application {
         primaryStage.show();
     }
 
-
 }
