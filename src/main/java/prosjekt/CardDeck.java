@@ -8,7 +8,7 @@ import java.util.Random;
 public class CardDeck {
 
     private List<Card> deck = new ArrayList<>();
-    private List<Character> color = new ArrayList<Character>(Arrays.asList('R', 'B', 'G', 'Y'));
+    private List<String> color = new ArrayList<String>(Arrays.asList("Red", "Blue", "Yellow", "Green"));
 
 
     public CardDeck() {
@@ -40,9 +40,17 @@ public class CardDeck {
     }
     public Card removeCard(int n) {
         if (n >= this.getDeckSize()) {
+            //ikke ha throws
             throw new IllegalArgumentException("det finnes ingen kort med denne indeksen");
         }
         return deck.remove(n);
+
+    }
+
+    public Card removeLastCard() {
+        Card kort = deck.get(deck.size()-1);
+        deck.remove(kort);
+        return kort;
 
     }
 
@@ -63,10 +71,11 @@ public class CardDeck {
  
     public static void main(String[] args) {
         CardDeck deck = new CardDeck();
-        System.out.println(deck.getDeckSize());
-        System.out.println(deck.getList());
-        System.out.println(deck.getCard(107));
-    
+        deck.shuffle();
+        Player player = new Player("Anne");
+        deck.handOut(player);
+        System.out.println(player.getHand());
+        
     }
 }
 

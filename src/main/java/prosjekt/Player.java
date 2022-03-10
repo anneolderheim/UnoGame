@@ -3,8 +3,6 @@ package prosjekt;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.scene.control.TextField;
-
 public class Player {
 
     private String name;
@@ -23,10 +21,7 @@ public class Player {
         hand.add(card);
     }
 
-    public void playCard(Game game, Card card) {
-        game.addOnTable(card);
-        hand.remove(card);
-    }
+    
 
     public List<Card> getHand() {
         return hand;
@@ -37,7 +32,6 @@ public class Player {
     }
 
     public static void main(String[] args) {
-        Card card = new Card('R', 9);
         
 
     }
