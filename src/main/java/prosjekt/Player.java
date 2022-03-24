@@ -13,9 +13,6 @@ public class Player {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
 
     public void addCard(Card card) {
         hand.add(card);
@@ -29,6 +26,10 @@ public class Player {
 
     public int getHandSize() {
         return hand.size();
+    }
+
+    public String getName() {
+        return name;
     }
 
     public static void main(String[] args) {
