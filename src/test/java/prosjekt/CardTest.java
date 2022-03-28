@@ -10,10 +10,15 @@ public class CardTest {
 
 	private Card card;
     private Card card1;
+	private Card failCard;
+	private Card failCard2;
+	private Card failCard3;
+
+
 
 	@BeforeEach
 	public void beforeEach() {
-		card = new Card('B', 10);
+		card = new Card("Blue", 10);
         card1 = new Card(13);
 	}
 
@@ -22,13 +27,25 @@ public class CardTest {
 	@Test
 	@DisplayName("Sjekk at et kort-objekt har riktige verdier")
 	public void testConstructor() {
-		Assertions.assertEquals('B', card.getColor());
+		Assertions.assertEquals("Blue", card.getColor());
 		Assertions.assertEquals(10, card.getValue());
 		Assertions.assertEquals(13,card1.getValue());
-        // hva skjer når card1.getValue?
+		Assertions.assertNull(card1.getColor());
+
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-			Card failCard = new Card(10);
+			failCard = new Card(10);
+
 		}, "Skal ikke kunne lage et kort med verdi 10 uten farge");
+
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			failCard2 = new Card("Yellow", 14);
+
+		}, "Kort med verdi 14 skal ikke ha farge");
+
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			failCard3 = new Card("Orange", 7);
+
+		}, "Ugyldig farge");
 	}
 
 }

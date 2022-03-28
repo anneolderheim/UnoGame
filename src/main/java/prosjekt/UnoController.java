@@ -1,24 +1,28 @@
 package prosjekt;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
-import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 
 public class UnoController {
 
     @FXML
-    private TextArea feedback, onTable;
+    private TextArea feedback, onTable, resultText;
 
     @FXML
     private TextField playerOne, playerTwo, playerThree, playerFour;
@@ -30,59 +34,20 @@ public class UnoController {
     private ScrollPane player1Cards, player2Cards, player3Cards, player4Cards;
 
     @FXML
-    private Button drawThree, startButton;
+    private Button pass, startButton, lastGame, saveGameButton;
 
     @FXML
     private Label pickColorLabel, player1name, player2name, player3name, player4name;
 
     @FXML
-    private Group playerInputFieldsGroup;
+    private Pane gameStarters, whilePlaying;
 
-    Game game = new Game();
+    Game game;
     private List<ScrollPane> scrollPanes = new ArrayList<>();
     private List<GridPane> grids = new ArrayList<>();
 
-    private List<String> colors = new ArrayList<String>(Arrays.asList("Red", "Blue", "Green", "Yellow"));
-
-    @FXML
-    public void onStart() {
-
-        Player player1 = new Player(playerOne.getText());
-        Player player2 = new Player(playerTwo.getText());
-        Player player3 = new Player(playerThree.getText());
-        Player player4 = new Player(playerFour.getText());
-        game.addPlayer(player1);
-        game.addPlayer(player2);
-        game.addPlayer(player3);
-        game.addPlayer(player4);
-
-        player1name.setVisible(true);
-        player2name.setVisible(true);
-        player3name.setVisible(true);
-        player4name.setVisible(true);
-
-        player1name.setText(playerOne.getText());
-        player2name.setText(playerTwo.getText());
-        player3name.setText(playerThree.getText());
-        player4name.setText(playerFour.getText());
-
-        game.start();
-        update();
-
-        (onTable).setVisible(true);
-        (drawThree).setVisible(true);
-
-        playerInputFieldsGroup.setVisible(false);
-
-
-        // start-knappen må forsvinne
-        //(startButton).setVisible(false);;
-
-    }
-
-    @FXML
-    void drawThree() {
-        game.drawThree(game.currentPlayer());
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     @FXML
@@ -97,23 +62,85 @@ public class UnoController {
         grids.add(grid3);
         grids.add(grid4);
 
-        (onTable).setVisible(false);
-        (drawThree).setVisible(false);
+        gameStarters.setVisible(true);
+        whilePlaying.setVisible(false);
 
-        drawThree.setOnAction((event) -> {
+        pass.setOnAction((event) -> {
             game.drawThree(game.getCurrentPlayer());
             update();
         });
 
+        saveGameButton.setOnAction((event) -> {
+            SaveGame();
+        });
 
     }
 
     @FXML
+    public void onStartNewGame() {
+
+        Game game = new Game();
+        setGame(game);
+
+        //oppretter nye spillere
+        Player player1 = new Player(playerOne.getText());
+        Player player2 = new Player(playerTwo.getText());
+        Player player3 = new Player(playerThree.getText());
+        Player player4 = new Player(playerFour.getText());
+        game.addPlayer(player1);
+        game.addPlayer(player2);
+        game.addPlayer(player3);
+        game.addPlayer(player4);
+        //autofyller spillernavn om brukeren ikke har skrevet inn navn
+        game.setPlayerNamesIfEmpty();
+        game.startNewGame();
+        startGame();
+
+    }
+
+    @FXML
+    public void onPlayLastGame() {
+        try {
+        StateHandler stateHandler = new StateHandler();
+        //gjenoppretter spill fra fil
+        Game lastGame = stateHandler.readState("UnoGame.txt");
+        setGame(lastGame);
+        }
+        catch (FileNotFoundException e) {
+        feedback.setText("Ingen tidligere spill lagret");
+        }
+
+        startGame();
+
+    }
+
+    public void startGame() {
+
+        player1name.setVisible(true);
+        player2name.setVisible(true);
+        player3name.setVisible(true);
+        player4name.setVisible(true);
+
+        player1name.setText(game.getPlayers().get(0).getName());
+        player2name.setText(game.getPlayers().get(1).getName());
+        player3name.setText(game.getPlayers().get(2).getName());
+        player4name.setText(game.getPlayers().get(3).getName());
+
+        update();
+        changeColorOnTable(game.getOnTopColor());
+        gameStarters.setVisible(false);
+        whilePlaying.setVisible(true);
+        feedback.setVisible(true);
+        saveGameButton.setVisible(true);
+    }
+
+    @FXML
+    //oppdaterer brukergrensesnittet
     public void update() {
 
-        feedback.setText("Det er spiller " + (game.getTurn() +1) + " sin tur");
-
+        //lager kort-knapper
         for (int j = 0; j < game.getPlayers().size(); j++) {
+            //hver spiller har sin egen grid med kort
             grids.get(j).getChildren().clear();
             Player player = game.getPlayers().get(j);
             for (int i = 0; i < player.getHandSize(); i++) {
@@ -123,9 +150,7 @@ public class UnoController {
             }
 
         }
-
         // disable knapper hvis det ikke er din tur
-
         for (int i = 0; i < grids.size(); i++) {
             if (i == game.getTurn()) {
                 for (Node button : grids.get(i).getChildren()) {
@@ -140,91 +165,103 @@ public class UnoController {
 
             }
         }
-
+        
         pickColorLabel.setVisible(false);
         pickColor.getChildren().clear();
         pickColor.setVisible(false);
 
-        // for (int j = 0; j < game.getPlayers().size(); j++) {
-        // Player player = game.getPlayers().get(j);
-        // TilePane grid = new TilePane();
-        // grid.setPrefColumns(4);
-        // for (int i = 0; i < player.getHandSize() ; i++) {
-        // Card card = player.getHand().get(i);
-        // grid.getChildren().add(createCardButton(card));
-        // //(createCardButton(card), i%4, i/4);
-
-        // }
-        // scrollPanes.get(j).setContent(grid);
-        // }
-        if (game.getTopOnTable().getColor() == "Red") {
-            onTable.setStyle("-fx-background-color: #ff0000; ");
-
-        } else if (game.getTopOnTable().getColor() == "Green") {
-            onTable.setStyle("-fx-background-color: #00ff00; ");
-
-        } else if (game.getTopOnTable().getColor() == "Blue") {
-            onTable.setStyle("-fx-background-color: #0000ff; ");
-
-        } else if (game.getTopOnTable().getColor() == "Yellow") {
-            onTable.setStyle("-fx-background-color: #ffff00; ");
-
+        if (!game.isSpecialCard(game.getTopOnTable())) {
+            game.setOnTopColor(game.getTopOnTable().getColor());
         }
+
+        changeColorOnTable(game.getOnTopColor());
         onTable.clear();
-        onTable.appendText(game.getTopOnTable().toString());
+        onTable.appendText(game.getTopOnTable().cardString());
 
+        //sjekker om noen spillere har et kort igjen - UNO
+        if (game.uno() != null) {
+            String uno = "";
+            for (Player player : game.uno()) {
+                uno += "" + player + " har UNO \n";
+            }
+            feedback.setText(uno);
+        }
+
+        //sjekker om det er en vinner og om spillet skal avsluttes
+        if (game.isThereAWinner()) {
+            handleGameOver(game.sortPlayers());
+        }
+
+        //sjekker om kortstokken er tom og bunken på bordet må snus
+        game.isDeckEmpty();
+
+       
     }
-
+    //lager en knapp for hvert kort
     private Button createCardButton(Card card) {
-        Button button = new Button(card.toString());
+        Button button = new Button(card.cardString());
         button.setOnAction((event) -> {
 
-            if (card.getValue() == 13 || card.getValue() == 14) {
+            //spesialkort skal føre til at man kan velge farge
+            if (game.isSpecialCard(card)) {
                 game.playCard(card);
                 pickColorLabel.setVisible(true);
                 pickColor.setVisible(true);
-                for (int i = 0; i < colors.size(); i++) {
-                    pickColor.add(createSelectColorButton(colors.get(i)), i % 1, i / 1);
+                for (int i = 0; i < game.getColors().size(); i++) {
+                    pickColor.add(createSelectColorButton(game.getColors().get(i)), i % 1, i / 1);
                 }
-                if (card.getValue() == 14) {
-                    game.drawFour(game.getCurrentPlayer());
-                }
-                
-            }
+            } 
+            
             else if (game.validCard(card)) {
                 game.playCard(card);
                 update();
+            }
 
+            else {
+                showErrorMessage("Velg et nytt kort");
             }
 
         });
 
+        //styler knappene
         button.wrapTextProperty().setValue(true);
         button.setStyle("-fx-text-alignment: center;");
         button.setCursor(Cursor.HAND);
         button.setMaxHeight(Double.MAX_VALUE);
         button.setMaxWidth(Double.MAX_VALUE);
-        if (card.getColor() == "Red") {
+        
+        if(Objects.isNull(card.getColor())) {
+
+        }
+
+        else if (card.getColor().equals("Red")) {
             button.setStyle("-fx-background-color: #ff0000; ");
 
-        } else if (card.getColor() == "Green") {
+        } else if (card.getColor().equals("Green")) {
             button.setStyle("-fx-background-color: #00ff00; ");
 
-        } else if (card.getColor() == "Blue") {
+        } else if (card.getColor().equals("Blue")) {
             button.setStyle("-fx-background-color: #0000ff; ");
 
-        } else if (card.getColor() == "Yellow") {
+        } else if (card.getColor().equals("Yellow")) {
             button.setStyle("-fx-background-color: #ffff00; ");
 
         }
+
+        if (game.isSpecialCard(card) ) {
+            button.setStyle("-fx-font-size: 10px;");
+
+        }
+
         return button;
     }
 
+
+    //lager knapper for å kunne velge ny farge
     private Button createSelectColorButton(String color) {
         Button button = new Button(color);
         button.setOnAction((event) -> {
-            changeColor(color);
-            game.getTopOnTable().setColor(color);
+            changeColorOnTable(color);
             update();
         });
 
@@ -249,8 +286,8 @@ public class UnoController {
         return button;
     }
 
-    private void changeColor(String color) {
-        
+    //endrer fargen på kortet som ligger på bordet
+    private void changeColorOnTable(String color) {
 
         if (color == "Red") {
             onTable.setStyle("-fx-background-color: #ff0000; ");
@@ -265,8 +302,51 @@ public class UnoController {
             onTable.setStyle("-fx-background-color: #ffff00; ");
 
         }
-        update();
+        game.setOnTopColor(color);
+    }
+    
+    //feilmelding om man prøver å legge på et ugyldig kort
+    public void showErrorMessage(String s) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Ikke gyldig trekk");
+        alert.setHeaderText(
+                "Kortet må ha samme farge eller samme \n tall som kortet som ligger på bordet, eller være et spesialkort");
+        alert.setContentText(s);
+        alert.showAndWait();
+    }
 
+    @FXML
+    //lagrer tilstanden til spillet til fil
+    void SaveGame() {
+        StateHandler stateHandler = new StateHandler();
+        try {
+            stateHandler.writeState(game);
+            feedback.setText("Spillet er lagret!");
+        }
+
+        catch (IOException e) {
+            feedback.setText("Spillet ble ikke lagret");
+        }
+
+        finally {
+            handleGameOver(game.sortPlayers());
+        }
+    }
+
+
+
+    public void handleGameOver(List<Player> players) {
+        //disabler alle kort-knappene når spillet er ferdig
+        for (int i = 0; i < grids.size(); i++) {
+            for (Node button : grids.get(i).getChildren()) {
+                button.setDisable(true);
+            }
+        }
+
+        feedback.setText(game.resultText());
+
+        whilePlaying.setVisible(false);
+        gameStarters.setVisible(true);
     }
 
 }

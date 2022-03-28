@@ -7,15 +7,14 @@ private int value;
 
 
 public Card(String color, int value) {
-    if (color == "Blue" || color == "Green" ||color == "Red" ||color == "Yellow") {
+    if (color.equals("Blue") || color.equals("Green") ||color.equals("Red") ||color.equals("Yellow")) {
         this.color = color;
         if (value >= 0 && value <= 12) {
-            this.value = value;
+            this.value = value; 
         }
         else {
             throw new IllegalArgumentException("ugyldig verdi");
         }
-
     }
 
     else {
@@ -28,8 +27,11 @@ public Card(int value) {
     if (value == 13 || value == 14) {
         this.value = value;
     }
-}
 
+    else {
+        throw new IllegalArgumentException("ugyldig verdi");
+    }
+}
 
 public String getColor() {
     return color;
@@ -44,8 +46,7 @@ public void setColor(String color) {
 }
 
 
-@Override
-public String toString() {
+public String cardString() {
     if (value< 10) {
     return ""+value+"";
     }
@@ -66,7 +67,31 @@ public String toString() {
         return "Bytt farge +4";
     }
 
-    //dette må plukkes opp i cardDeck
+    return null;
+    
+}
+
+public String toString() {
+    if (value< 10) {
+    return color+""+value+"";
+    }
+
+    else if (value == 10) {
+        return color + "Skip";
+    }
+    else if (value == 11) {
+        return color + "Snu";
+    }
+    else if (value == 12) {
+        return color + "+2";
+    }
+    else if (value == 13) {
+        return "Bytt farge";
+    }
+    else if (value == 14) {
+        return "Bytt farge +4";
+    }
+
     return null;
     
 }
@@ -78,6 +103,8 @@ public static void main(String[] args) {
     Card kort1 = new Card(13);
     System.out.println(kort1);
     System.out.println(kort1.getColor());
+    Card card = new Card(13);
+    System.out.println(card.getColor());
 }
 
 
